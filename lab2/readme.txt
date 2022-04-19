@@ -24,7 +24,6 @@ Dretva RADNA: kraj rada, zadnji broj=10
 Dretva MREŽNA: krecem s radom, zadnji broj=232     ->  echo 232 > cijev
 Dretva MREŽNA: iteracija 1
 Dretva MREŽNA: kraj rada, zadnji broj=233
-Program s PID=5441 zavrsio s radom
 Dretva RADNA: krecem s radom, zadnji broj=233
 Dretva RADNA: iteracija 6
 Dretva RADNA: kraj rada, zadnji broj=234

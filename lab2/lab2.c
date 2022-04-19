@@ -262,8 +262,6 @@ void *mreza(void *p)
 
 	}
 
-	printf("Program s PID=%ld zavrsio s radom\n", (long) getpid());
-	
 	}
 	
 	return NULL;
