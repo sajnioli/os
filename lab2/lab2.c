@@ -3,13 +3,21 @@
 #include <unistd.h>
 #include <math.h>
 #include <signal.h>
+#include <pthread.h>
+#include "signali.h"
+#include "datoteke.h"
 
-char *dat_stat, *dat_obrada;
+char *dat_stat, *dat_obrada, *dat_mreza;
 int broj = 0;
 int nije_kraj=1;
 
+/* funkcije koje rade dretve */
+void *obrada(void *);
+void *mreza(void *);
+
 /* funkcije za rad s datotekama */
 int procitaj_status();
+int dohvati_iz_cijevi();
 void zapisi_status(int broj);
 void dodaj_broj(int broj);
 int pronadji_zadnji_broj();
@@ -21,6 +29,7 @@ void obradi_sigint(int sig);
 
 int main(int argc, char *argv[])
 {
+	
 	struct sigaction act;
 
 	/* 1. maskiranje signala SIGUSR1 */
@@ -45,49 +54,52 @@ int main(int argc, char *argv[])
 	/* 3. maskiranje signala SIGINT */
 	act.sa_handler = obradi_sigint;
 	sigaction(SIGINT, &act, NULL);
-
+	
 	printf("Program s PID=%ld krenuo s radom\n", (long) getpid());
-	int i=0, x;
-	if (argc < 3) {
-		printf("Koristenje: %s <status-datoteka> <datoteka-s-podacim>",
-			argv[0]);
-		return 1;
+	
+	if (argc < 4) {
+		fprintf(stderr, "Koristenje: %s <status-datoteka> "
+		 "<datoteka-s-podacima> <cjevovod>\n", argv[0]);
+		exit(1);
 	}
 	dat_stat = argv[1];
 	dat_obrada = argv[2];
-
-	/* simulacija rada */
-	/* pocetak */
-	while(nije_kraj) {
-	broj = procitaj_status();
-	if (broj == 0) {
-		printf("program bio prekinut, potraga za brojem...\n");
-		broj = pronadji_zadnji_broj();
-		broj = (int) sqrt(broj);
-	}
-	zapisi_status(0); //radim
-	printf("krecem s radom, zadnji broj=%d\n", broj);
-
-	//simulacija obrade
-	for (i = 0; i < 5; i++) {
-		broj++;
-		x = broj * broj;
-		dodaj_broj(x);
-		sleep(5);
-	}
-
-	//kraj
-	zapisi_status(broj);
-	printf("kraj rada, zadnji broj=%d\n", broj);
-
+	dat_mreza = argv[3];
 	
-		printf("Program: iteracija %d\n", i++);
-		sleep(1);
+	postavi_signale();
+	
+	zapisi_status(0);
+	
+	pthread_t radna, mrezna;
+	
+	if(pthread_create(&radna, NULL, &obrada, NULL) !=0 )
+	return 1;
+	if(pthread_create(&mrezna, NULL, &mreza, NULL) !=0 )
+	return 1;
+	
+	int broj;
+	
+	while(nije_kraj){
+	
+	//upis 
+	scanf("%d",&broj);
+	
+	if(broj > 0)
+	zapisi_status(broj);
+	
+	else
+	{
+	nije_kraj=0;
+	exit(0);
 	}
-
-	printf("Program s PID=%ld zavrsio s radom\n", (long) getpid());
-
+	
+	}
+	
+	pthread_join(radna, NULL);
+	
+	
 	return 0;
+	
 }
 
 int procitaj_status()
@@ -179,3 +191,81 @@ void obradi_sigint(int sig)
 	printf("Primio signal SIGINT, prekidam rad\n");
 	exit(1);
 }
+
+void *obrada(void *p)
+{
+	int i=1, x;
+	int broj;
+	int nije_kraj=1;
+	
+	printf("Obrada kreće za 5 sekundi...\n");
+	printf("Upisi broj:");
+	sleep(5);
+	
+	while(nije_kraj) {
+	broj = procitaj_status();
+	if (broj == 0) {
+		printf("program bio prekinut, potraga za brojem...\n");
+		broj = pronadji_zadnji_broj();
+		broj = (int) sqrt(broj);
+	}
+	zapisi_status(0);
+	printf("Dretva RADNA: krecem s radom, zadnji broj=%d\n", broj);
+
+		//obrada
+		broj++;
+		x = broj * broj;
+		dodaj_broj(x);
+
+	//kraj
+	zapisi_status(broj);
+	printf("Dretva RADNA: iteracija %d\n", i++);
+	printf("Dretva RADNA: kraj rada, zadnji broj=%d\n", broj);
+
+		sleep(3);
+	}
+
+	printf("Program s PID=%ld zavrsio s radom\n", (long) getpid());
+
+	return NULL;
+}
+void *mreza(void *p)
+{
+	int broj;
+	int nije_kraj=1;
+	int i=1, x;
+	
+	broj = dohvati_iz_cijevi();
+	zapisi_status(broj);
+	
+	while(nije_kraj) {
+	if (broj == 0) {
+		printf("\n Broj u konzoli je 0...\n");
+		printf("\n Završavam s radom...\n");
+		nije_kraj=0;
+	}
+	else
+	{
+	zapisi_status(broj); 
+	printf("Dretva MREŽNA: krecem s radom, zadnji broj=%d\n", broj);
+	
+		x = broj * broj;
+		dodaj_broj(x);
+		broj++;
+	
+	
+	zapisi_status(broj);
+	printf("Dretva MREŽNA: iteracija %d\n", i++);
+	printf("Dretva MREŽNA: kraj rada, zadnji broj=%d\n", broj);
+
+		nije_kraj=0;
+
+	}
+
+	printf("Program s PID=%ld zavrsio s radom\n", (long) getpid());
+	
+	}
+	
+	return NULL;
+}
+
