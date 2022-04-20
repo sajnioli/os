@@ -88,15 +88,11 @@ int main(int argc, char *argv[])
 	zapisi_status(broj);
 	
 	else
-	{
 	nije_kraj=0;
-	exit(0);
-	}
 	
 	}
-	
+
 	pthread_join(radna, NULL);
-	
 	
 	return 0;
 	
@@ -194,13 +190,14 @@ void obradi_sigint(int sig)
 
 void *obrada(void *p)
 {
-	int i=1, x;
+	int i = 1, x;
 	int broj;
-	int nije_kraj=1;
+	int nije_kraj = 1;
 	
 	printf("Obrada kreće za 5 sekundi...\n");
-	printf("Upisi broj:");
+	printf("Upisi broj:\n");
 	sleep(5);
+
 	
 	while(nije_kraj) {
 	broj = procitaj_status();
@@ -232,20 +229,14 @@ void *obrada(void *p)
 void *mreza(void *p)
 {
 	int broj;
-	int nije_kraj=1;
-	int i=1, x;
+	int i = 1, x;
 	
 	broj = dohvati_iz_cijevi();
 	zapisi_status(broj);
 	
-	while(nije_kraj) {
-	if (broj == 0) {
-		printf("\n Broj u konzoli je 0...\n");
-		printf("\n Završavam s radom...\n");
-		nije_kraj=0;
-	}
-	else
-	{
+	while(broj >= 0){
+	
+	if(broj > 0){
 	zapisi_status(broj); 
 	printf("Dretva MREŽNA: krecem s radom, zadnji broj=%d\n", broj);
 	
@@ -253,17 +244,17 @@ void *mreza(void *p)
 		dodaj_broj(x);
 		broj++;
 	
-	
 	zapisi_status(broj);
 	printf("Dretva MREŽNA: iteracija %d\n", i++);
 	printf("Dretva MREŽNA: kraj rada, zadnji broj=%d\n", broj);
 
-		nije_kraj=0;
-
+	broj = dohvati_iz_cijevi();
 	}
-
+	
 	}
 	
 	return NULL;
+
 }
+
 
