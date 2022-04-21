@@ -234,10 +234,8 @@ void *mreza(void *p)
 	broj = dohvati_iz_cijevi();
 	zapisi_status(broj);
 	
-	while(broj >= 0){
-	
-	if(broj > 0){
-	zapisi_status(broj); 
+	while(broj > 0){
+
 	printf("Dretva MREŽNA: krecem s radom, zadnji broj=%d\n", broj);
 	
 		x = broj * broj;
@@ -249,9 +247,9 @@ void *mreza(void *p)
 	printf("Dretva MREŽNA: kraj rada, zadnji broj=%d\n", broj);
 
 	broj = dohvati_iz_cijevi();
+
 	}
 	
-	}
 	
 	return NULL;
 
