@@ -16,6 +16,8 @@ int main() {
 	int koliko_puta, i;
 	FILE *fp;
 	
+	inicijaliziraj_prazni_disk();
+	
 	while(1) {
 		printf("\nNova naredba:\nUnesi ime datoteke ili 'kraj' za kraj:\n");
 

@@ -122,6 +122,7 @@ int procitaj(int id, void *p, size_t koliko)
 	kopirati = min;
 	else
 	kopirati = BLOCK_SIZE - datotecna_tablica[id].kazaljka % BLOCK_SIZE;
+	while(datotecna_tablica[id].kazaljka < koliko || datotecna_tablica[id].kazaljka < datotecna_tablica[id].blokovi[MAX_DATOTEKA] || datotecna_tablica[id].kazaljka < datotecna_tablica[id].velicina)
 	p += kopirati;
 	datotecna_tablica[id].kazaljka += kopirati;
 	jos -= kopirati;
